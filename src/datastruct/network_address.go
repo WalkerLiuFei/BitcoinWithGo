@@ -3,17 +3,17 @@ package datastruct
 //当某个地方需要网络地址时，就使用这个结构。网络地址在版本信息中没有以时间戳作为前缀
 type NetworkAddress struct {
 	// the time not present in version message
-	time uint32
+	Time uint32
 
 	//	same service(s) listed in version
-	services uint64
+	Services uint64
 	//IPv6 address. Network byte order. The original client only supported IPv4 and only read the
 	// last 4 bytes to get the IPv4 address. However, the IPv4 address is written into the message as a
 	// 16 byte IPv4-mapped IPv6 address (12 bytes 00 00 00 00 00 00 00 00 00 00 FF FF, followed by the 4 bytes of the IPv4 address).
 	IP []byte
 
 	//uint16 port number
-	port uint16
+	Port uint16
 }
 
 /**

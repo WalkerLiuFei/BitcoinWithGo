@@ -8,8 +8,8 @@ package datastruct
 //容量 最大为 500000 个对象  约为1.8 M
 type Inv struct {
 	//Number of inventory entries
-	count uint32
+	Count uint32
 
 	//Inventory vectors
-	inventory []InvVect
+	Inventory []InvVect
 }

@@ -2,9 +2,9 @@ package datastruct
 
 type TimestampNetworkAddress struct {
 	//时间戳
-	timestamp uint32
+	Timestamp uint32
 
 	//网络地址
-	address NetworkAddress
+	Address NetworkAddress
 }
 
