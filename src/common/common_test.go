@@ -3,6 +3,7 @@ package common
 import (
 	"testing"
 	"fmt"
+	"bytes"
 )
 
 func TestBitcoinInput_New(t *testing.T) {

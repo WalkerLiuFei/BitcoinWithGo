@@ -1,7 +1,6 @@
 package datastruct
 
 import (
-	"bytes"
 	"common"
 )
 
@@ -26,16 +25,16 @@ type Header struct {
 	PreBlockHash []byte
 
 	//区块的版本号
-	Version uint32
+	Version int32
 
 	//当前区块的hash值
 	BlcokHash []byte
 }
 
-func (header *Header) New(input *common.BitcoinInput) {
+func (header *Header) Init(input *common.BitcoinInput) {
 	input.ReadNum(&header.Version)
 
-	header.MerkleHash = make([]byte, 32)
+	header.PreBlockHash = make([]byte, 32)
 	input.ReadBytes(header.PreBlockHash)
 
 	header.MerkleHash = make([]byte, 32)

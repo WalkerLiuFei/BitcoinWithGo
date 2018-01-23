@@ -1,6 +1,6 @@
 package datastruct
 
-
+import "common"
 
 const (
 	//any data with this num may be ignored
@@ -33,4 +33,16 @@ type InvVect struct {
 
 	//对应 object hash值
 	Hash []byte
+}
+
+func (invVect *InvVect) Init(input *common.BitcoinInput){
+	input.ReadNum(&invVect.Type)
+	invVect.Hash = make([]byte,32)
+	input.ReadBytes(invVect.Hash)
+}
+
+func (invVect *InvVect) GetBytes()[]byte{
+	output := common.BitcoinOuput{}
+	output.WriteNum(invVect.Type).WriteBytes(invVect.Hash)
+	return output.Buffer.Bytes()
 }

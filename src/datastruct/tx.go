@@ -18,7 +18,7 @@ type TxOut struct {
 }
 
 type TxIn struct {
-	PreviousOutput *OutPoint
+	PreviousOutput OutPoint
 	//签名
 	SigScript []byte
 
@@ -37,7 +37,9 @@ func (tx *TxOut) Init(input common.BitcoinInput) {
 		return
 	}
 	tx.PubKeyHash = make([]byte,scriptLen)
+	input.ReadBytes(tx.PubKeyHash)
 }
+
 func (tx *TxOut) GetBytes()  []byte{
 	output := common.BitcoinOuput{}
 	output.WriteNum(tx.Value).
@@ -46,9 +48,13 @@ func (tx *TxOut) GetBytes()  []byte{
 }
 
 func (tx *TxIn) Init(input common.BitcoinInput){
-	tx.PreviousOutput = &OutPoint{}
+	tx.PreviousOutput = OutPoint{}
 	tx.PreviousOutput.Init(input)
-	signatureLen, _ := input.ReadVarInt()
+	signatureLen, err := input.ReadVarInt()
+	if err != nil{
+		logger.Error(err.Error())
+		return
+	}
 	tx.SigScript = make([]byte, signatureLen)
 	input.ReadBytes(tx.SigScript)
 	input.ReadNum(&tx.Sequence)

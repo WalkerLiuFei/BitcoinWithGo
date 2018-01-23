@@ -7,7 +7,7 @@ import (
 
 type Transaction struct {
 	//int32_t, transaction data format version (signed)
-	version uint32
+	version int32
 
 	//a list of 1 or more transaction inputs or sources for coins
 	TxIns []TxIn
@@ -30,17 +30,17 @@ type Transaction struct {
 func (trans *Transaction) Init(input common.BitcoinInput) {
 	input.ReadNum(&trans.version)
 	txInCount, _ := input.ReadVarInt()
-	txIns := make([]TxIn, txInCount)
-	for index, _ := range txIns {
-		txIns[index].Init(input)
+	trans.TxIns = make([]TxIn, txInCount)
+	for index, _ := range trans.TxIns {
+		trans.TxIns[index].Init(input)
 	}
 
 	txOutCount, _ := input.ReadVarInt()
-	txOuts := make([]TxIn, txOutCount)
-	for index, _ := range txOuts {
-		txOuts[index].Init(input)
+	trans.TxOuts = make([]TxOut, txOutCount)
+	for index, _ := range trans.TxOuts {
+		trans.TxOuts[index].Init(input)
 	}
-	input.ReadNum(trans.LockTime)
+	input.ReadNum(&trans.LockTime)
 }
 
 func (trans *Transaction) GetTxHash() []byte {

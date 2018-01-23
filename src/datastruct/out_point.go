@@ -15,10 +15,9 @@ type OutPoint struct {
 }
 
 func (outPoint *OutPoint) Init(input common.BitcoinInput) {
-	point := &OutPoint{}
-	point.Hash = make([]byte, 32)
-	input.ReadBytes(point.Hash)
-	input.ReadNum(point.Index)
+	outPoint.Hash = make([]byte, 32)
+	input.ReadBytes(outPoint.Hash)
+	input.ReadNum(&outPoint.Index)
 }
 
 func (outPoint *OutPoint) GetBytes(input common.BitcoinInput) []byte {

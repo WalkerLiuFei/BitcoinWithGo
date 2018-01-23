@@ -2,12 +2,12 @@ package datastruct
 
 import (
 	"common"
-	"go.uber.org/zap"
+	"utils"
 )
 
 /**
-	区块是比特币系统中最重要的数据结构,其包括区块头和打包的交易
- */
+区块是比特币系统中最重要的数据结构,其包括区块头和打包的交易
+*/
 
 type Block struct {
 	//区块头
@@ -16,16 +16,35 @@ type Block struct {
 	TXns []Transaction
 }
 
-func NewBlock(input common.BitcoinInput) *Block {
-	header := Header{}
-	header.New(&input)
-	block := Block{
-		Header: &header,
-	}
+func (block *Block) Init(input common.BitcoinInput) {
+	block.Header = &Header{}
+	block.Header.Init(&input)
 	txCount, err := input.ReadVarInt()
 	if err != nil {
 		logger.Error(err.Error())
-		return nil
 	}
+	block.TXns = make([]Transaction, txCount)
+	for _, transaction := range block.TXns {
+		transaction.Init(input)
+	}
+}
 
+func (block *Block) GetBytes() []byte {
+	output := common.BitcoinOuput{}
+	output.WriteBytes(block.Header.GetBytes()).WriteVarInt(int64(len(block.TXns)))
+	for _, transaction := range block.TXns {
+		output.WriteBytes(transaction.GetBytes())
+	}
+	return output.Buffer.Bytes()
+}
+
+func (block *Block) calculateMerkleHash() []byte {
+	hashes := make([][]byte, len(block.TXns))
+	for index, tx := range block.TXns {
+		hashes[index] = tx.GetTxHash()
+	}
+	for len(hashes) > 1 {
+		hashes = utils.MerkleHash(hashes)
+	}
+	return hashes[0]
 }
