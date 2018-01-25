@@ -16,7 +16,8 @@ type BitcoinInput struct {
 
 //type BitcoinInput interface{}
 
-func (input *BitcoinInput) New(stream []byte) *BitcoinInput {
+func NewBitcoinInput(stream []byte) *BitcoinInput {
+	input := &BitcoinInput{}
 	input.InputBuffer = bytes.NewBuffer(stream)
 	return input
 }

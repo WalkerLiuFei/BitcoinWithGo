@@ -20,7 +20,7 @@ func (outPoint *OutPoint) Init(input common.BitcoinInput) {
 	input.ReadNum(&outPoint.Index)
 }
 
-func (outPoint *OutPoint) GetBytes(input common.BitcoinInput) []byte {
+func (outPoint *OutPoint) GetBytes(input *common.BitcoinInput) []byte {
 	output := common.BitcoinOuput{}
 	output.WriteBytes(outPoint.Hash).WriteNum(outPoint.Index)
 	return output.Buffer.Bytes()

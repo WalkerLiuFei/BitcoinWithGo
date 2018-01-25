@@ -28,10 +28,10 @@ type Header struct {
 	Version int32
 
 	//当前区块的hash值
-	BlcokHash []byte
+	BlockHash []byte
 }
 
-func (header *Header) Init(input *common.BitcoinInput) {
+func (header *Header) Init(input common.BitcoinInput) {
 	input.ReadNum(&header.Version)
 
 	header.PreBlockHash = make([]byte, 32)

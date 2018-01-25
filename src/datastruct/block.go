@@ -7,6 +7,7 @@ import (
 
 /**
 区块是比特币系统中最重要的数据结构,其包括区块头和打包的交易
+参考 ： https://bitcoin.org/en/developer-reference#block
 */
 
 type Block struct {
@@ -18,7 +19,7 @@ type Block struct {
 
 func (block *Block) Init(input common.BitcoinInput) {
 	block.Header = &Header{}
-	block.Header.Init(&input)
+	block.Header.Init(input)
 	txCount, err := input.ReadVarInt()
 	if err != nil {
 		logger.Error(err.Error())

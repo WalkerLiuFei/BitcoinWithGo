@@ -27,11 +27,13 @@ const (
 )
 //Inventory vectors are used for notifying other nodes about objects they have or data which is being requested.
 //Inventory vectors consist of the following data format:
+//used to identify transactions and blocks available for download through the Bitcoin P2P network.
+//一般在P2P网络中，作为 交易或者区块的验证
 type InvVect struct {
 	//Hash的类型，对应上面的四种
 	Type uint32
 
-	//对应 object hash值
+	//Block Header / transaction 的Hash 值
 	Hash []byte
 }
 
