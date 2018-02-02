@@ -1,4 +1,4 @@
-package datastruct
+package p2p
 
 import "common"
 

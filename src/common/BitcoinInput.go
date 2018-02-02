@@ -16,8 +16,8 @@ type BitcoinInput struct {
 
 //type BitcoinInput interface{}
 
-func NewBitcoinInput(stream []byte) *BitcoinInput {
-	input := &BitcoinInput{}
+func NewBitcoinInput(stream []byte) BitcoinInput {
+	input := BitcoinInput{}
 	input.InputBuffer = bytes.NewBuffer(stream)
 	return input
 }
@@ -70,3 +70,9 @@ func (input *BitcoinInput) ReadNum(numPointer interface{}) error {
 	err := binary.Read(input.InputBuffer, binary.LittleEndian, numPointer)
 	return err
 }
+
+func (input *BitcoinInput) ReadNumWithBigEndian(numPointer interface{}) error {
+	err := binary.Read(input.InputBuffer, binary.BigEndian, numPointer)
+	return err
+}
+

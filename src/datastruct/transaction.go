@@ -27,7 +27,7 @@ type Transaction struct {
 	TxHash []byte
 }
 
-func (trans *Transaction) Init(input *common.BitcoinInput) {
+func (trans *Transaction) Init(input common.BitcoinInput) {
 	input.ReadNum(&trans.version)
 	txInCount, _ := input.ReadVarInt()
 	trans.TxIns = make([]TxIn, txInCount)

@@ -29,7 +29,7 @@ type TxIn struct {
 	Sequence uint32
 }
 
-func (tx *TxOut) Init(input *common.BitcoinInput) {
+func (tx *TxOut) Init(input common.BitcoinInput) {
 	input.ReadNum(&tx.Value)
 	scriptLen,err  := input.ReadVarInt()
 	if err != nil{
@@ -47,7 +47,7 @@ func (tx *TxOut) GetBytes()  []byte{
 	return output.Buffer.Bytes()
 }
 
-func (tx *TxIn) Init(input *common.BitcoinInput) {
+func (tx *TxIn) Init(input common.BitcoinInput) {
 	tx.PreviousOutput = OutPoint{}
 	tx.PreviousOutput.Init(input)
 	signatureLen, err := input.ReadVarInt()

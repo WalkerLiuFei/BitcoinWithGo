@@ -16,7 +16,7 @@ type Inv struct {
 	Inventory []InvVect
 }
 
-func (inv *Inv) Init(input *common.BitcoinInput) {
+func (inv *Inv) Init(input common.BitcoinInput) {
 	input.ReadNum(&inv.Count)
 	inv.Inventory = make([]InvVect, 32)
 	for _, inventory := range inv.Inventory {
