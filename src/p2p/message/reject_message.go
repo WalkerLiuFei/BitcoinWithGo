@@ -1,6 +1,9 @@
-package p2p
+package message
 
-import "common"
+import (
+	"common"
+	"constants"
+)
 
 //The reject message informs the receiving node that one of its previous messages has been rejected.
 // reference : https://bitcoin.org/en/developer-reference#Reject
@@ -19,7 +22,7 @@ type Reject_Message struct {
 }
 
 func (rejectMsg *Reject_Message) Decode(payload []byte) {
-	rejectMsg.Header.init(REJECT_MESSAGE, payload)
+	rejectMsg.Header.init(constants.REJECT_MESSAGE, payload)
 	input := common.NewBitcoinInput(payload)
 	typeBytesCount, err := input.ReadVarInt()
 	if err != nil {
@@ -39,3 +42,5 @@ func (rejectMsg *Reject_Message) Decode(payload []byte) {
 	rejectMsg.Reason = string(reasonBytes)
 	rejectMsg.ExtraData = input.InputBuffer.Bytes()
 }
+
+

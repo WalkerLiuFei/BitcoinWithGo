@@ -1,8 +1,9 @@
-package p2p
+package message
 
 import (
 	"common"
 	"datastruct"
+	"constants"
 )
 
 type BlockMessage struct {
@@ -11,17 +12,17 @@ type BlockMessage struct {
 }
 
 func (blockMsg *BlockMessage) Decode(payload []byte) {
-	blockMsg.Header.init(BLOCK, payload)
+	blockMsg.Header.init(constants.BLOCK, payload)
 	input := common.NewBitcoinInput(payload)
 	blockMsg.Block.Init(input)
 }
 
-func (block *BlockMessage) GetBytes() []byte {
+func (block *BlockMessage) Encode() []byte {
 	output := common.BitcoinOuput{}
-	output.WriteBytes(block.Header.getBytes()).WriteBytes(block.getPayload())
+	output.WriteBytes(block.Header.getBytes()).WriteBytes(block.GetPayload())
 	return output.Buffer.Bytes()
 }
 
-func (block *BlockMessage) getPayload() []byte {
+func (block *BlockMessage) GetPayload() []byte {
 	return block.Block.GetBytes()
 }

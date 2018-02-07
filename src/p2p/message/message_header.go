@@ -1,23 +1,17 @@
-package p2p
+package message
 
 import (
 	"common"
 	"go.uber.org/zap"
 	"utils"
+	"constants"
 )
 
-type Message interface {
-	GetPayload() []byte
-
-	Init([]byte)
-
-	GetBytes() []byte
-}
 
 // reference : https://bitcoin.org/en/developer-reference#message-headers
 type message_header struct {
 	//魔法字节，标识
-	MAGIC []byte
+	MAGIC uint32
 	//标识信息的类型,size 固定为12
 	Command []byte
 	//Payload size
@@ -28,8 +22,8 @@ type message_header struct {
 
 var logger, _ = zap.NewProduction()
 
-func (msg *message_header) init(cmd MessageType, payload []byte) {
-	msg.MAGIC = []byte{0Xf9, 0Xbe, 0Xb4, 0Xd9}
+func (msg *message_header) init(cmd constants.MessageType, payload []byte) {
+	msg.MAGIC = 0xd9b4bef9
 	msg.Command = []byte(cmd)
 	if len(msg.Command) < 12 {
 		index := len(msg.Command)
@@ -44,9 +38,9 @@ func (msg *message_header) init(cmd MessageType, payload []byte) {
 
 func (msg *message_header) getBytes() []byte {
 	output := common.BitcoinOuput{}
-	output.WriteBytes(msg.MAGIC).
-		WriteBytes(msg.CheckSum).
+	output.WriteNum(msg.MAGIC).
+		WriteBytes(msg.Command).
 		WriteNum(msg.PayloadSize).
-		WriteBytes(msg.Command)
+		WriteBytes(msg.CheckSum)
 	return output.Buffer.Bytes()
 }

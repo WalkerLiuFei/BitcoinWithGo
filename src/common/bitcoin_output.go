@@ -3,32 +3,48 @@ package common
 import (
 	"bytes"
 	"encoding/binary"
-	"io"
+	"utils"
 )
 
-type BitcoinOuput struct {
-	//input stream
-	Buffer bytes.Buffer
-}
-
 func (output *BitcoinOuput) WriteNum(num interface{}) *BitcoinOuput {
-	var writer io.Writer = new(bytes.Buffer)
-	binary.Write(writer, binary.LittleEndian, num)
-	var p []byte
-	writer.Write(p)
-	output.Buffer.Write(p)
+	if output.Buffer == nil {
+		output.Buffer = new(bytes.Buffer)
+	}
+	err := binary.Write(output.Buffer, binary.LittleEndian, num)
+	checkError(err)
 	return output
 }
 
+type BitcoinOuput struct {
+	//input stream
+	Buffer *bytes.Buffer
+}
+
+func checkError(e error) {
+	if e != nil {
+		utils.GetSugarLogger().Error(e.Error())
+	}
+
+}
+
 func (output *BitcoinOuput) WriteString(str string) *BitcoinOuput {
+	if output.Buffer == nil {
+		output.Buffer = new(bytes.Buffer)
+	}
 	output.Buffer.WriteString(str)
 	return output
 }
 func (output *BitcoinOuput) WriteBytes(byteArr []byte) *BitcoinOuput {
+	if output.Buffer == nil {
+		output.Buffer = new(bytes.Buffer)
+	}
 	output.Buffer.Write(byteArr)
 	return output
 }
 func (output *BitcoinOuput) WriteVarInt(num int64) *BitcoinOuput {
+	if output.Buffer == nil {
+		output.Buffer = new(bytes.Buffer)
+	}
 	if num < 0XFD {
 		output.Buffer.WriteByte(byte(num))
 	} else if num <= 0xFFFF {

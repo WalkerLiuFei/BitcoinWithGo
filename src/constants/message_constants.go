@@ -1,19 +1,19 @@
-package p2p
+package constants
 
-const PROTOCOL_VERSION = 70014
-
-type PortType uint16
+type RejectMsgType byte
 
 const (
-	//主干网络的端口
-	MAIN_NET_PORT PortType = 8333
+	//Message could not be decoded.
+	//In Reply To any message
+	ERROR_DECODE RejectMsgType = 0x01
 
-	//全网络的测试的端口
-	GLOBE_TEST_NET_PORT PortType = 18333
+	//Block is invalid for some reason
+	//In reply to block message
+	BLOCK_INVALID RejectMsgType = 0x10
 
-	//本地网络的端口
-	LOCAL_TEST_NET_PORT PortType = 18444
+	TRANSACTION_INVALID RejectMsgType = 0x10
 )
+
 
 //message的类型
 type MessageType string

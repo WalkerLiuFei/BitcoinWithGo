@@ -1,4 +1,4 @@
-package p2p
+package message
 
 import (
 	"encoding/json"
@@ -35,7 +35,7 @@ func TestVersion_Message_Decode(t *testing.T) {
 		"ffffc61b6409208d010000000000000000000000000000000000ffffcb0071c0208d128035cbc97953" +
 		"f80f2f5361746f7368693a302e392e332fcf05050001"
 	input := generateHexArray(msgStr)
-	versionMsg := Version_Message{}
+	versionMsg := version_Message{}
 	versionMsg.Decode(input)
 	jsonStr, _ := json.Marshal(versionMsg)
 	fmt.Println(string(jsonStr))

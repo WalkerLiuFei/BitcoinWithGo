@@ -1,12 +1,17 @@
-package p2p
+package message
 
 import (
 	"common"
+	"constants"
 )
+
+//getheader message 作用几乎和getblock一样，只不过getheader 只返回header 信息（一次最多2000）
+
+//https://bitcoin.org/en/developer-reference#getheaders
 
 //https://bitcoin.org/en/developer-reference#getblocks
 //https://bitcoin.org/en/developer-guide#blocks-first
-type GetBlockMessage struct {
+type GetHeaderMessage struct {
 	Header message_header
 
 	//版本号信息
@@ -21,14 +26,14 @@ type GetBlockMessage struct {
 }
 
 //headerHashes :
-func (getBlockMsg *GetBlockMessage) Encode(hashStop []byte, headerHashes ...[]byte) {
-	getBlockMsg.Version = PROTOCOL_VERSION
+func (getBlockMsg *GetHeaderMessage) Init(hashStop []byte, headerHashes ...[]byte) {
+	getBlockMsg.Version = constants.PROTOCOL_VERSION
 	getBlockMsg.StopHash = hashStop
 	getBlockMsg.HeaderHashes = headerHashes
-	getBlockMsg.Header.init(GET_BLOCKS, getBlockMsg.GetPayload())
+	getBlockMsg.Header.init(constants.GET_BLOCKS, getBlockMsg.GetPayload())
 }
-func (getBlockMsg *GetBlockMessage) Decode(payload []byte) {
-	getBlockMsg.Header.init(GET_HEADERS, payload)
+func (getBlockMsg *GetHeaderMessage) Decode(payload []byte) {
+	getBlockMsg.Header.init(constants.GET_HEADERS, payload)
 	input := common.NewBitcoinInput(payload)
 	input.ReadNum(&getBlockMsg.Version)
 	headerHashCount, err := input.ReadVarInt()
@@ -40,17 +45,16 @@ func (getBlockMsg *GetBlockMessage) Decode(payload []byte) {
 		getBlockMsg.HeaderHashes[index] = make([]byte, 32)
 		input.ReadBytes(getBlockMsg.HeaderHashes[index])
 	}
-	getBlockMsg.StopHash = make([]byte, 32)
 	input.ReadBytes(getBlockMsg.StopHash)
 }
 
-func (getBlockMsg *GetBlockMessage) GetBytes() []byte {
+func (getBlockMsg *GetHeaderMessage) Encode() []byte {
 	output := common.BitcoinOuput{}
 	output.WriteBytes(getBlockMsg.Header.getBytes()).WriteBytes(getBlockMsg.GetPayload())
 	return output.Buffer.Bytes()
 }
 
-func (getBlockMsg *GetBlockMessage) GetPayload() []byte {
+func (getBlockMsg *GetHeaderMessage) GetPayload() []byte {
 	output := common.BitcoinOuput{}
 	output.WriteNum(getBlockMsg.Version)
 	for _, hash := range getBlockMsg.HeaderHashes {

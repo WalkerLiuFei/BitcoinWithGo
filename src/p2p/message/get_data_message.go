@@ -1,8 +1,9 @@
-package p2p
+package message
 
 import (
 	"common"
 	"datastruct"
+	"constants"
 )
 
 type GetDataMessage struct {
@@ -11,25 +12,29 @@ type GetDataMessage struct {
 	Inventory []datastruct.InvVect
 }
 
-func (getDataMsg *GetDataMessage) Encode(invType datastruct.InventoryType, hashes ...[]byte) {
+func (getDataMsg *GetDataMessage) Init(invType datastruct.InventoryType, hashes ...[]byte) {
 	getDataMsg.Inventory = make([]datastruct.InvVect, len(hashes))
 	for index, _ := range getDataMsg.Inventory {
 		getDataMsg.Inventory[index].Type = invType
 		getDataMsg.Inventory[index].Hash = hashes[index]
 	}
-	getDataMsg.Header.init(GET_DATA, getDataMsg.GetPayload())
+	getDataMsg.Header.init(constants.GET_DATA, getDataMsg.GetPayload())
 }
 
 func (getDataMsg *GetDataMessage) Decode(payload []byte) {
 	input := common.NewBitcoinInput(payload)
-	getDataMsg.Header.init(GET_DATA, payload)
+	getDataMsg.Header.init(constants.GET_DATA, payload)
 	inventoryCount, _ := input.ReadVarInt()
 	getDataMsg.Inventory = make([]datastruct.InvVect, inventoryCount)
 	for _, inv := range getDataMsg.Inventory {
 		inv.Init(input)
 	}
 }
-
+func (getDataMsg *GetDataMessage) Encode() []byte {
+	output := common.BitcoinOuput{}
+	output.WriteBytes(getDataMsg.Header.getBytes()).WriteBytes(getDataMsg.GetPayload())
+	return output.Buffer.Bytes()
+}
 func (getDataMsg *GetDataMessage) GetPayload() []byte {
 	output := common.BitcoinOuput{}
 	for _, data := range getDataMsg.Inventory {
