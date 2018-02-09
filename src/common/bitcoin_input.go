@@ -31,6 +31,11 @@ func (input *BitcoinInput) NewWithBuffer(buffer io.Reader) *BitcoinInput {
 func (input *BitcoinInput) ReadBytes(p []byte) {
 	input.InputBuffer.Read(p)
 }
+func (input *BitcoinInput) ReadByte() byte {
+	b, err := input.InputBuffer.ReadByte()
+	checkError(err)
+	return b
+}
 
 func (input *BitcoinInput) ReadString() (string) {
 	streamLen, _ := input.ReadVarInt()

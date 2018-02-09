@@ -25,3 +25,12 @@ func GetSugarLogger() *zap.SugaredLogger {
 func GetFunctionName(i interface{}) string {
 	return runtime.FuncForPC(reflect.ValueOf(i).Pointer()).Name()
 }
+
+func PrintHexArray(src []byte) {
+	if len(src) == 0 {
+		return
+	}
+	for _, value := range src {
+		fmt.Printf("[%x] ", value)
+	}
+}

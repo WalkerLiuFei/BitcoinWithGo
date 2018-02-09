@@ -14,8 +14,7 @@ func TestTransaction(t *testing.T) {
 	}
 
 	trans := Transaction{}
-	input := common.BitcoinInput{}
-	input.New(txData)
+	input := common.NewBitcoinInput(txData)
 	trans.Init(input)
 	fmt.Println(trans)
 

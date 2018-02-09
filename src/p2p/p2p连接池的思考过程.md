@@ -1,0 +1,25 @@
+1. 连接应该是一个自定义的Strut类似
+      +  net.conn 连接维护
+      +  msg channel ，维护收/发的message
+
+    ```Go
+    type PeerConn struct{
+        ~~IP  *net.TcpAddr~~
+        conn *net.TcpConn //对应的连接
+        msgChannel  chan message //接收到的message 都维护到这个channel里面
+    }
+    ```
+    当新建tcp连接时，首先保证dial能够成功，然后为message channel分配空间并维护
+
+~~2. 连接池应该是一个map,且应该持有一个锁，~~
+## Sync Block实现
+> 根据[官方教程](https://bitcoin.org/en/developer-guide#initial-block-download)里面的说反，SyncBlock一般是在第一次接入
+Bitcoin网络或者是从Bitcoin网络中东Offline很久后才会调用(**一般本地最高Block落后24小时**)，同步方式有两种，一种是[blocks-first](https://bitcoin.org/en/developer-guide#blocks-first)
+方式，另一种是[headers-first](https://bitcoin.org/en/developer-guide#headers-first)方式，这里我只考虑Header-Frist方式的实现
+
+###  Header-Frist实现
+1. 获取区块链的Headeer
+2. 发送GetHeaders Message获取所欲的未同步的区块头,最大为2000个Header队列，获取到以后
+3. 收到Headers队列的响应后，开始初步验证
+4. 校验规则： 确保所有字段遵循共识规则，并且根据nBits字段，Header的Hash值的长度低于目标阈值。
+5. 在进行局部校验的同时，还可以同步的对已经验证好的Header请求对应的Block数据

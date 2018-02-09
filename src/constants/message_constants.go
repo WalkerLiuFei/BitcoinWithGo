@@ -36,7 +36,8 @@ const (
 
 	//Address
 	ADDRESS_MESSAGE = "addr"
-
+	//Header
+	HEADER = "header"
 	//Get Address
 	GET_ADDRESS = "getaddr"
 

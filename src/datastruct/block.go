@@ -13,6 +13,10 @@ import (
 type Block struct {
 	//区块头
 	Header *Header
+
+	//当前区块的hash值
+	BlockHash []byte
+
 	//区块内的交易
 	TXns []Transaction
 }

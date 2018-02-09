@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"strconv"
 	"testing"
+	"utils"
 )
 
 func generateHexArray(str string) []byte {
@@ -53,4 +54,18 @@ func TestGetBlockMessage_Decode(t *testing.T) {
 	getBlockMsg.Decode(input)
 	jsonStr, _ := json.Marshal(getBlockMsg)
 	fmt.Println(string(jsonStr))
+}
+
+func TestHeaderHashConsensus(t *testing.T) {
+	msgHeader := "02000000" +
+		"b6ff0b1b1680a2862a30ca44d346d9e8" +
+		"910d334beb48ca0c0000000000000000" +
+		"9d10aa52ee949386ca9385695f04ede2" +
+		"70dda20810decd12bc9b048aaab31471" +
+		"24d95a54" +
+		"30c31b18" +
+		"fe9f0864";
+	//msgHeader := "04000000b9e2784a84e5d2468cee60ad14e08d0fee5dda49a37148040000000000000000e9dd2b13157508891880ef68729a1e5ecdde58062ebfa214a89f0141e5a4717faefd2b577627061880564bec"
+	header := generateHexArray(msgHeader)
+	fmt.Println(utils.ValidateHeaderHash(header))
 }

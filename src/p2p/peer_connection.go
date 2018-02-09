@@ -11,6 +11,12 @@ import (
 	"time"
 )
 
+type PeerConn struct {
+	//Peer 的地址
+	IP *net.TCPAddr
+
+	//
+}
 //链接成功返回true
 func ConnectPeer(addr *net.TCPAddr) (*net.TCPConn, bool) {
 	conn, err := net.DialTCP("tcp4", nil, addr)

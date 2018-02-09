@@ -44,3 +44,9 @@ func (msg *message_header) getBytes() []byte {
 		WriteBytes(msg.CheckSum)
 	return output.Buffer.Bytes()
 }
+
+func checkError(e error) {
+	if e != nil {
+		utils.GetSugarLogger().Error(e.Error())
+	}
+}
