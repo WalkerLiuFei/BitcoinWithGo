@@ -1,11 +1,11 @@
 package common
 
 import (
-	"io"
-	"go.uber.org/zap"
-	"errors"
-	"encoding/binary"
 	"bytes"
+	"encoding/binary"
+	"errors"
+	"go.uber.org/zap"
+	"io"
 )
 
 var logger, _ = zap.NewProduction()
@@ -22,9 +22,8 @@ func NewBitcoinInput(stream []byte) BitcoinInput {
 	return input
 }
 
-
 func (input *BitcoinInput) NewWithBuffer(buffer io.Reader) *BitcoinInput {
-	//input.InputBuffer = InputBuffer
+	//input.InputBuffer = buffer
 	return input
 }
 
@@ -37,7 +36,7 @@ func (input *BitcoinInput) ReadByte() byte {
 	return b
 }
 
-func (input *BitcoinInput) ReadString() (string) {
+func (input *BitcoinInput) ReadString() string {
 	streamLen, _ := input.ReadVarInt()
 	if streamLen == 0 {
 		return ""
@@ -80,4 +79,3 @@ func (input *BitcoinInput) ReadNumWithBigEndian(numPointer interface{}) error {
 	err := binary.Read(input.InputBuffer, binary.BigEndian, numPointer)
 	return err
 }
-

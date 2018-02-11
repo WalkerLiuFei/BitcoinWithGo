@@ -1,10 +1,10 @@
 package utils
 
 import (
-	"go.uber.org/zap"
 	"fmt"
-	"runtime"
+	"go.uber.org/zap"
 	"reflect"
+	"runtime"
 )
 
 var sugarLogger *zap.SugaredLogger

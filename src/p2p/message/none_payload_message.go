@@ -1,25 +1,19 @@
 package message
 
-import "constants"
+import (
+	"constants"
+	"common"
+)
 
 //has no payload message ,like verack ,sendheaders ,getaddr,filterclear ,alter,mempool
 
 type NonePayloadMessage struct {
-	Header message_header
+	Header messageHeader
 }
 
-var msgType constants.MessageType
-
-func GetMessageType() constants.MessageType {
-	return msgType
-}
-
-func SetMessageType(messageType constants.MessageType) {
-	msgType = messageType
-}
-
-func (nonePayloadMsg *NonePayloadMessage) Decode([]byte) {
-	nonePayloadMsg.Header.init(msgType, []byte{})
+func (nonePayloadMsg *NonePayloadMessage) Decode(contentBytes []byte) {
+	input := common.NewBitcoinInput(contentBytes)
+	nonePayloadMsg.Header.decode(input)
 }
 func (nonePayloadMsg *NonePayloadMessage) Encode() []byte {
 	return nonePayloadMsg.Header.getBytes()

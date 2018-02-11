@@ -1,9 +1,8 @@
 package datastruct
 
-
 import "common"
 
-type Tx interface{
+type Tx interface {
 	Init(input *common.BitcoinInput)
 
 	GetBytes() []byte
@@ -31,16 +30,16 @@ type TxIn struct {
 
 func (tx *TxOut) Init(input common.BitcoinInput) {
 	input.ReadNum(&tx.Value)
-	scriptLen,err  := input.ReadVarInt()
-	if err != nil{
+	scriptLen, err := input.ReadVarInt()
+	if err != nil {
 		logger.Error(err.Error())
 		return
 	}
-	tx.PubKeyHash = make([]byte,scriptLen)
+	tx.PubKeyHash = make([]byte, scriptLen)
 	input.ReadBytes(tx.PubKeyHash)
 }
 
-func (tx *TxOut) GetBytes()  []byte{
+func (tx *TxOut) GetBytes() []byte {
 	output := common.BitcoinOuput{}
 	output.WriteNum(tx.Value).
 		WriteBytes(tx.PubKeyHash)
@@ -51,7 +50,7 @@ func (tx *TxIn) Init(input common.BitcoinInput) {
 	tx.PreviousOutput = OutPoint{}
 	tx.PreviousOutput.Init(input)
 	signatureLen, err := input.ReadVarInt()
-	if err != nil{
+	if err != nil {
 		logger.Error(err.Error())
 		return
 	}

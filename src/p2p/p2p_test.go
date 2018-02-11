@@ -1,17 +1,17 @@
 package p2p
 
 import (
-	"testing"
-	"fmt"
-	"time"
-	"constants"
-	"net"
 	"configs"
+	"constants"
+	"fmt"
+	"net"
+	"testing"
+	"time"
 )
 
 func TestConsumeDNSSeed(t *testing.T) {
-	ipArray := ConsumeDNSSeed(constants.GLOBE_TEST_NET_PORT)
-	fmt.Println(ipArray)
+	//ipArray := ConsumeDNSSeed(constants.GLOBE_TEST_NET_PORT)
+	//fmt.Println(ipArray)
 }
 func TestConnectPeer2(t *testing.T) {
 	tcpAddr, _ := net.ResolveTCPAddr("tcp4", "baidu.com")

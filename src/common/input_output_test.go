@@ -1,9 +1,9 @@
 package common
 
 import (
-	"testing"
-	"fmt"
 	"bytes"
+	"fmt"
+	"testing"
 )
 
 func TestBitcoinInput_ReadNum(t *testing.T) {

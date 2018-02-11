@@ -2,27 +2,27 @@ package message
 
 import (
 	"common"
-	"datastruct"
 	"constants"
+	"datastruct"
 )
 
 type BlockMessage struct {
-	Header message_header
-	Block  datastruct.Block
+	header *messageHeader
+	block  *datastruct.Block
 }
 
-func (blockMsg *BlockMessage) Decode(payload []byte) {
-	blockMsg.Header.init(constants.BLOCK, payload)
-	input := common.NewBitcoinInput(payload)
-	blockMsg.Block.Init(input)
+func (blockMsg *BlockMessage) Decode(contentBytes []byte) {
+	input := common.NewBitcoinInput(contentBytes)
+	blockMsg.header.decode(input)
+	blockMsg.block.Init(input)
 }
 
 func (block *BlockMessage) Encode() []byte {
 	output := common.BitcoinOuput{}
-	output.WriteBytes(block.Header.getBytes()).WriteBytes(block.GetPayload())
+	output.WriteBytes(block.header.getBytes()).WriteBytes(block.GetPayload())
 	return output.Buffer.Bytes()
 }
 
 func (block *BlockMessage) GetPayload() []byte {
-	return block.Block.GetBytes()
+	return block.block.GetBytes()
 }

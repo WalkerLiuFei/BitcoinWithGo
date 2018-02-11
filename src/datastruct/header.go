@@ -11,7 +11,6 @@ type Header struct {
 	//上一个区块的hash值
 	PreBlockHash []byte
 
-
 	//The reference to a Merkle tree collection which is a hash of all transactions related to this block
 	MerkleHash []byte
 
@@ -22,11 +21,10 @@ type Header struct {
 	Bits uint32
 
 	/**
-	 * uint32, The Nonce used to generate this block to allow variations of the
+	 * uint32, The nonce used to generate this block to allow variations of the
 	 * header and compute different hashes
 	 */
 	Nonce uint32
-
 }
 
 func (header *Header) Init(input common.BitcoinInput) {

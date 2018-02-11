@@ -1,14 +1,14 @@
 package p2p
 
 import (
+	"configs"
+	"fmt"
+	"github.com/spf13/viper"
+	"io/ioutil"
 	"net"
 	"p2p/message"
-	"github.com/spf13/viper"
-	"configs"
-	"io/ioutil"
-	"fmt"
-	"utils"
 	"time"
+	"utils"
 )
 
 type PeerConn struct {
@@ -17,9 +17,10 @@ type PeerConn struct {
 
 	//
 }
+
 //链接成功返回true
 func ConnectPeer(addr *net.TCPAddr) (*net.TCPConn, bool) {
-	conn, err := net.DialTCP("tcp4", nil, addr)
+	conn, err := net.DialTCP("tcp", nil, addr)
 	if conn == nil {
 		return conn, false
 	}
@@ -29,17 +30,18 @@ func ConnectPeer(addr *net.TCPAddr) (*net.TCPConn, bool) {
 	_, err = conn.Write(verMsg.Encode())
 	checkerr(err, ConnectPeer)
 	utils.GetSugarLogger().Infof("connect to %s", addr.IP.String())
-	var result []byte
-	for ; len(result) == 0; {
-		//等待100ms
-		time.Sleep(time.Millisecond * 100)
-		result, err = ioutil.ReadAll(conn)
-		checkerr(err, ConnectPeer)
-		//FIXME : 在做成连接池后,优化打印的信息
-	}
-	fmt.Println(result)
+	var versionAckMsg []byte
+	//等待100ms
+	time.Sleep(time.Millisecond * 100)
+	versionAckMsg, err = ioutil.ReadAll(conn)
+	checkerr(err, ConnectPeer)
+	msg, err := message.DecodeMessage(versionAckMsg)
+	checkerr(err, ConnectPeer)
+
+	//FIXME : 在做成连接池后,优化打印的信息
 	return conn, true
 }
+
 func checkerr(e error, funcName interface{}) {
 	logger := utils.GetSugarLogger()
 	if e != nil {

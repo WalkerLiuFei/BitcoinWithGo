@@ -18,6 +18,9 @@ Bitcoin网络或者是从Bitcoin网络中东Offline很久后才会调用(**一�
 方式，另一种是[headers-first](https://bitcoin.org/en/developer-guide#headers-first)方式，这里我只考虑Header-Frist方式的实现
 
 ###  Header-Frist实现
+
+![image.png](http://upload-images.jianshu.io/upload_images/5247090-d5273481168ded4a.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240)
+
 1. 获取区块链的Headeer
 2. 发送GetHeaders Message获取所欲的未同步的区块头,最大为2000个Header队列，获取到以后
 3. 收到Headers队列的响应后，开始初步验证

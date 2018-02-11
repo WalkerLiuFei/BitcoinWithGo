@@ -28,15 +28,15 @@ const (
 	MSG_CMPCT_BLOCK InventoryType = 4
 )
 
-//Inventory vectors are used for notifying other nodes about objects they have or data which is being requested.
-//Inventory vectors consist of the following data format:
+//inventory vectors are used for notifying other nodes about objects they have or data which is being requested.
+//inventory vectors consist of the following data format:
 //used to identify transactions and blocks available for download through the Bitcoin P2P network.
 //一般在P2P网络中，作为 交易或者区块的验证
 type InvVect struct {
 	//Hash的类型，对应上面的四种
 	Type InventoryType
 
-	//Block Header / transaction 的Hash 值
+	//block header / transaction 的Hash 值
 	Hash []byte
 }
 

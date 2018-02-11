@@ -2,30 +2,31 @@ package message
 
 import (
 	"common"
-	"math/rand"
 	"constants"
+	"math/rand"
 )
 
 //https://bitcoin.org/en/developer-reference#ping
 type PingMessage struct {
-	Header message_header
+	header messageHeader
 	//random number to confirm connection
-	Nonce uint64
+	nonce uint64
 }
 
-func (ping *PingMessage) Init([]byte) {
-	ping.Nonce = uint64(rand.Int63())
-	ping.Header.init(constants.PING_MESSAGE, ping.Encode())
+func (ping *PingMessage) Decode(contentBytes []byte) {
+	input := common.NewBitcoinInput(contentBytes)
+	ping.header.decode(input)
+	input.ReadNum(&ping.nonce)
 }
 
 func (ping *PingMessage) GetPayload() []byte {
 	output := common.BitcoinOuput{}
-	output.WriteNum(ping.Nonce)
+	output.WriteNum(ping.nonce)
 	return output.Buffer.Bytes()
 }
 
 func (ping *PingMessage) Encode() []byte {
 	output := common.BitcoinOuput{}
-	output.WriteBytes(ping.Header.getBytes()).WriteBytes(ping.GetPayload())
+	output.WriteBytes(ping.header.getBytes()).WriteBytes(ping.GetPayload())
 	return output.Buffer.Bytes()
 }

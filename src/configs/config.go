@@ -1,18 +1,23 @@
 package configs
 
 import (
+	"constants"
 	"github.com/spf13/viper"
 	"math/rand"
-	"constants"
 )
 
 const (
-	//运行环境： test，localtest,realse
-	CONTEXT_NETWORK_PORT = "context"
 
+	//运行环境： test，localtest,realse
+	CONTEXT = "context"
+	//端口号
+	PORT = "context"
+	//magic
+	MAGIC = "magic"
 	//节点类型
 	NODE_TYPE = "node-type"
-
+	//Max nbits
+	MAX_N_BITS = "max-n-bits"
 	//node id
 	NODE_ID = "node-id"
 
@@ -21,8 +26,14 @@ const (
 )
 
 func InitConfigs() {
+	//
+	viper.Set(CONTEXT, constants.MAIN_NET.Network)
 	//运行环境
-	viper.Set(CONTEXT_NETWORK_PORT, constants.MAIN_NET_PORT)
+	viper.Set(PORT, constants.MAIN_NET.DefaultPort)
+	//消息流的开头的四个字节
+	viper.Set(MAGIC, constants.MAIN_NET.Magic)
+	//最大的nbits
+	viper.Set(MAX_N_BITS, constants.MAIN_NET.MaxNBits)
 	//节点类型
 	viper.Set(NODE_TYPE, constants.NODE_NETWORK)
 	//节点的ID ： 一个64位随机数

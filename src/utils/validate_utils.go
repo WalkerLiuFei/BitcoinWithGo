@@ -1,9 +1,9 @@
 package utils
 
 import (
-	"math/big"
-	"errors"
 	"bytes"
+	"errors"
+	"math/big"
 )
 
 //根据官方文档计算的，通过nbit来计算Mining的Threshold : 这个是一个 256进制的数！
@@ -45,7 +45,7 @@ func GetPreciseTarget(nBits []byte) ([]byte, error) {
 func GetPreciseTargetByNum(nBits uint32) []byte {
 	//256进制的byte数组
 	result := big.NewInt(int64(nBits & 0X00FFFFFF))
-	power := nBits&0XFF000000>>24 - 3
+	power := (nBits & 0XFF000000 >> 24) - 3
 	power *= 2
 	for power > 0 {
 		result = result.Mul(result, big.NewInt(256))

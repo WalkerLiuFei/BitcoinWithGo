@@ -1,10 +1,10 @@
 package utils
 
 import (
+	"configs"
+	"github.com/spf13/viper"
 	"net"
 	"os"
-	"github.com/spf13/viper"
-	"configs"
 )
 
 //获取本地的服务地址，因为Bitcoin要求IP地址的byte数组的长度需满足32字节的长度
@@ -25,7 +25,7 @@ func GetLocalServiceAddr() *net.TCPAddr {
 	}
 	return &net.TCPAddr{
 		IP:   ip,
-		Port: viper.GetInt(configs.CONTEXT_NETWORK_PORT),
+		Port: viper.GetInt(configs.PORT),
 	}
 }
 

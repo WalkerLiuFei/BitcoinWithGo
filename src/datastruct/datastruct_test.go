@@ -1,12 +1,12 @@
 package datastruct
 
 import (
-	"testing"
+	"bytes"
 	"encoding/binary"
+	"fmt"
 	"go.uber.org/zap"
 	"io"
-	"fmt"
-	"bytes"
+	"testing"
 )
 
 func TestDatastruct(t *testing.T) {
@@ -19,7 +19,5 @@ func TestDatastruct(t *testing.T) {
 	var result int32
 	binary.Read(writer, binary.LittleEndian, &result)
 	logger, _ := zap.NewProduction()
-	logger.Info("the num is :", zap.Int32("value", result), )
+	logger.Info("the num is :", zap.Int32("value", result))
 }
-
-

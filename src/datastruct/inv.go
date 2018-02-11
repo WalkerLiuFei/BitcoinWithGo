@@ -12,7 +12,7 @@ type Inv struct {
 	//Number of inventory entries
 	Count uint32
 
-	//Inventory vectors
+	//inventory vectors
 	Inventory []InvVect
 }
 

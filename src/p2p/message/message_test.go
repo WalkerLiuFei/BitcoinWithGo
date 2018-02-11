@@ -6,6 +6,7 @@ import (
 	"strconv"
 	"testing"
 	"utils"
+	"strings"
 )
 
 func generateHexArray(str string) []byte {
@@ -64,8 +65,20 @@ func TestHeaderHashConsensus(t *testing.T) {
 		"70dda20810decd12bc9b048aaab31471" +
 		"24d95a54" +
 		"30c31b18" +
-		"fe9f0864";
+		"fe9f0864"
 	//msgHeader := "04000000b9e2784a84e5d2468cee60ad14e08d0fee5dda49a37148040000000000000000e9dd2b13157508891880ef68729a1e5ecdde58062ebfa214a89f0141e5a4717faefd2b577627061880564bec"
 	header := generateHexArray(msgHeader)
 	fmt.Println(utils.ValidateHeaderHash(header))
+}
+
+func TestDecodeMessage(t *testing.T) {
+
+}
+
+func TestStringTrim(t *testing.T) {
+
+	str := "******"
+	fmt.Println(strings.TrimRightFunc(str, func(r rune) bool {
+		return !(r > 96 && r < 123)
+	}))
 }

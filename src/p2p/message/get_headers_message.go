@@ -12,54 +12,54 @@ import (
 //https://bitcoin.org/en/developer-reference#getblocks
 //https://bitcoin.org/en/developer-guide#blocks-first
 type GetHeaderMessage struct {
-	Header message_header
+	header messageHeader
 
 	//版本号信息
-	Version uint32
+	version uint32
 
 	//One or more block header hashes (32 bytes each)
-	HeaderHashes [][]byte
+	headerHashes [][]byte
 
 	//The header hash of the last header hash being requested;
 	// set to zero to get as many blocks as possible
-	StopHash []byte
+	stopHash []byte
 }
 
 //headerHashes :
 func (getBlockMsg *GetHeaderMessage) Init(hashStop []byte, headerHashes ...[]byte) {
-	getBlockMsg.Version = constants.PROTOCOL_VERSION
-	getBlockMsg.StopHash = hashStop
-	getBlockMsg.HeaderHashes = headerHashes
-	getBlockMsg.Header.init(constants.GET_BLOCKS, getBlockMsg.GetPayload())
+	getBlockMsg.version = constants.PROTOCOL_VERSION
+	getBlockMsg.stopHash = hashStop
+	getBlockMsg.headerHashes = headerHashes
+	getBlockMsg.header.init(constants.GET_BLOCKS, getBlockMsg.GetPayload())
 }
 func (getBlockMsg *GetHeaderMessage) Decode(payload []byte) {
-	getBlockMsg.Header.init(constants.GET_HEADERS, payload)
 	input := common.NewBitcoinInput(payload)
-	input.ReadNum(&getBlockMsg.Version)
+	getBlockMsg.header.decode(input)
+	input.ReadNum(&getBlockMsg.version)
 	headerHashCount, err := input.ReadVarInt()
 	if err != nil {
 		return
 	}
-	getBlockMsg.HeaderHashes = make([][]byte, headerHashCount)
-	for index, _ := range getBlockMsg.HeaderHashes {
-		getBlockMsg.HeaderHashes[index] = make([]byte, 32)
-		input.ReadBytes(getBlockMsg.HeaderHashes[index])
+	getBlockMsg.headerHashes = make([][]byte, headerHashCount)
+	for index, _ := range getBlockMsg.headerHashes {
+		getBlockMsg.headerHashes[index] = make([]byte, 32)
+		input.ReadBytes(getBlockMsg.headerHashes[index])
 	}
-	input.ReadBytes(getBlockMsg.StopHash)
+	input.ReadBytes(getBlockMsg.stopHash)
 }
 
 func (getBlockMsg *GetHeaderMessage) Encode() []byte {
 	output := common.BitcoinOuput{}
-	output.WriteBytes(getBlockMsg.Header.getBytes()).WriteBytes(getBlockMsg.GetPayload())
+	output.WriteBytes(getBlockMsg.header.getBytes()).WriteBytes(getBlockMsg.GetPayload())
 	return output.Buffer.Bytes()
 }
 
 func (getBlockMsg *GetHeaderMessage) GetPayload() []byte {
 	output := common.BitcoinOuput{}
-	output.WriteNum(getBlockMsg.Version)
-	for _, hash := range getBlockMsg.HeaderHashes {
+	output.WriteNum(getBlockMsg.version)
+	for _, hash := range getBlockMsg.headerHashes {
 		output.WriteBytes(hash)
 	}
-	output.WriteBytes(getBlockMsg.StopHash)
+	output.WriteBytes(getBlockMsg.stopHash)
 	return output.Buffer.Bytes()
 }

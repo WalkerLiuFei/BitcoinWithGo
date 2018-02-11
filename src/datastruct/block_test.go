@@ -3,10 +3,10 @@ package datastruct
 import (
 	"testing"
 	//"io/ioutil"
-	"io/ioutil"
 	"common"
-	"github.com/stretchr/testify/assert"
 	"fmt"
+	"github.com/stretchr/testify/assert"
+	"io/ioutil"
 	"utils"
 )
 
@@ -22,8 +22,8 @@ func TestBlock_Input(t *testing.T) {
 	fmt.Println(block.Header)
 }
 func TestBlock_Out(t *testing.T) {
-	stream,err := ioutil.ReadFile("./block-000000000000000000f061205567dc79c4e718209a568879d66132e016968ac6.dat")
-	if err != nil{
+	stream, err := ioutil.ReadFile("./block-000000000000000000f061205567dc79c4e718209a568879d66132e016968ac6.dat")
+	if err != nil {
 		logger.Error(err.Error())
 	}
 	input := common.NewBitcoinInput(stream)

@@ -7,20 +7,20 @@ import (
 )
 
 type HeaderMessage struct {
-	//Header
-	Header message_header
+	//header
+	header messageHeader
 	//所有的区块头
-	BlockHeaders []datastruct.Header
+	blockHeaders []datastruct.Header
 }
 
-func (headerMsg *HeaderMessage) Decode(payload []byte) {
-	headerMsg.Header.init(constants.HEADER, payload)
-	input := common.NewBitcoinInput(payload)
+func (headerMsg *HeaderMessage) Decode(contentBytes []byte) {
+	input := common.NewBitcoinInput(contentBytes)
+	headerMsg.header.decode(input)
 	headerCount, err := input.ReadVarInt()
 	checkError(err)
-	headerMsg.BlockHeaders = make([]datastruct.Header, headerCount)
-	for index, _ := range headerMsg.BlockHeaders {
-		headerMsg.BlockHeaders[index].Init(input)
+	headerMsg.blockHeaders = make([]datastruct.Header, headerCount)
+	for index, _ := range headerMsg.blockHeaders {
+		headerMsg.blockHeaders[index].Init(input)
 		//ignore tx count , always 0X00
 		input.ReadByte()
 	}
@@ -33,8 +33,8 @@ func (headerMsg *HeaderMessage) Encode() []byte {
 }
 func (headerMsg *HeaderMessage) GetPayload() []byte {
 	output := common.BitcoinOuput{}
-	output.WriteVarInt(int64(len(headerMsg.BlockHeaders)))
-	for _, header := range headerMsg.BlockHeaders {
+	output.WriteVarInt(int64(len(headerMsg.blockHeaders)))
+	for _, header := range headerMsg.blockHeaders {
 		output.WriteBytes(header.GetBytes())
 	}
 	return output.Buffer.Bytes()

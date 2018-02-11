@@ -2,47 +2,67 @@ package message
 
 import (
 	"common"
+	"constants"
 	"go.uber.org/zap"
 	"utils"
-	"constants"
+	"github.com/spf13/viper"
+	"configs"
 )
 
-
 // reference : https://bitcoin.org/en/developer-reference#message-headers
-type message_header struct {
+type messageHeader struct {
 	//魔法字节，标识
-	MAGIC uint32
+	magic uint32
 	//标识信息的类型,size 固定为12
-	Command []byte
+	command []byte
 	//Payload size
-	PayloadSize uint32
+	payloadSize uint32
 	//First 4 bytes of SHA256(SHA256(payload)) in
-	CheckSum []byte
+	checkSum []byte
 }
 
 var logger, _ = zap.NewProduction()
 
-func (msg *message_header) init(cmd constants.MessageType, payload []byte) {
-	msg.MAGIC = 0xd9b4bef9
-	msg.Command = []byte(cmd)
-	if len(msg.Command) < 12 {
-		index := len(msg.Command)
+func (msg *messageHeader) init(cmd constants.MessageType, payload []byte) {
+	msg.magic = uint32(viper.GetInt(configs.MAGIC))
+	msg.command = []byte(cmd)
+	if len(msg.command) < 12 {
+		index := len(msg.command)
 		for index < 12 {
-			msg.Command = append(msg.Command, 0)
+			msg.command = append(msg.command, 0)
 			index++
 		}
 	}
-	msg.PayloadSize = uint32(len(payload))
-	msg.CheckSum = utils.DoubleHash(payload)[:4]
+	msg.payloadSize = uint32(len(payload))
+	msg.checkSum = utils.DoubleHash(payload)[:4]
+}
+func (msg *messageHeader) decode(input common.BitcoinInput) {
+	input.ReadNum(&msg.magic)
+	input.ReadBytes(msg.command)
+	input.ReadNum(&msg.payloadSize)
+	input.ReadBytes(msg.checkSum)
 }
 
-func (msg *message_header) getBytes() []byte {
+func (msg *messageHeader) getBytes() []byte {
 	output := common.BitcoinOuput{}
-	output.WriteNum(msg.MAGIC).
-		WriteBytes(msg.Command).
-		WriteNum(msg.PayloadSize).
-		WriteBytes(msg.CheckSum)
+	output.WriteNum(msg.magic).
+		WriteBytes(msg.command).
+		WriteNum(msg.payloadSize).
+		WriteBytes(msg.checkSum)
 	return output.Buffer.Bytes()
+}
+
+func decodeHeader(inputStream []byte) (*messageHeader) {
+	input := common.NewBitcoinInput(inputStream)
+	//读取Message Header
+	header := &messageHeader{}
+	input.ReadNum(&header.magic)
+	header.command = make([]byte, 12)
+	input.ReadBytes(header.command)
+	input.ReadNum(&header.payloadSize)
+	header.checkSum = make([]byte, 4)
+	input.ReadNum(header.checkSum)
+	return header
 }
 
 func checkError(e error) {
