@@ -2,7 +2,6 @@ package p2p
 
 import (
 	"configs"
-	"fmt"
 	"github.com/spf13/viper"
 	"io/ioutil"
 	"net"
@@ -37,7 +36,9 @@ func ConnectPeer(addr *net.TCPAddr) (*net.TCPConn, bool) {
 	checkerr(err, ConnectPeer)
 	msg, err := message.DecodeMessage(versionAckMsg)
 	checkerr(err, ConnectPeer)
-
+	if msg == nil {
+		return conn, false
+	}
 	//FIXME : 在做成连接池后,优化打印的信息
 	return conn, true
 }

@@ -2,8 +2,6 @@ package message
 
 import (
 	"common"
-	"constants"
-	"math/rand"
 )
 
 //https://bitcoin.org/en/developer-reference#ping

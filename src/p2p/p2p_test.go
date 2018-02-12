@@ -2,7 +2,6 @@ package p2p
 
 import (
 	"configs"
-	"constants"
 	"fmt"
 	"net"
 	"testing"

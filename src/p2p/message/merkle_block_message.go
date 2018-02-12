@@ -2,7 +2,6 @@ package message
 
 import (
 	"common"
-	"constants"
 	"datastruct"
 )
 

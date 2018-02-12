@@ -2,7 +2,6 @@ package message
 
 import (
 	"common"
-	"constants"
 )
 
 //The reject message informs the receiving node that one of its previous messages has been rejected.

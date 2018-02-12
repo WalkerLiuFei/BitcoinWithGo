@@ -4,7 +4,6 @@ import (
 	"constants"
 	"github.com/pkg/errors"
 	"strings"
-	"golang.org/x/text/message"
 )
 
 type Message interface {
@@ -16,6 +15,9 @@ type Message interface {
 }
 
 func DecodeMessage(inputStream []byte) (Message, error) {
+	if len(inputStream) == 0 {
+		return nil, errors.New("empty message")
+	}
 	header := decodeHeader(inputStream)
 	var message Message
 
