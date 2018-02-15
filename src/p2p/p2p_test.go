@@ -4,6 +4,7 @@ import (
 	"configs"
 	"fmt"
 	"net"
+	"strconv"
 	"testing"
 	"time"
 )
@@ -23,17 +24,47 @@ func TestUnixSecond(t *testing.T) {
 func TestConnectPeer(t *testing.T) {
 	configs.InitConfigs()
 	//addrArray := ConsumeDNSSeed(constants.MAIN_NET_PORT)
-	ip := net.IP{}
-	ip.UnmarshalText([]byte("62.116.188.85"))
-	addr := &net.TCPAddr{
-		IP:   ip,
-		Port: 8333,
-	}
-	ConnectPeer(addr)
-	/*for _,addr := range addrArray {
-		if addr != nil && len(addr.IP) > 0{
-
+	addrArray := ConsumeDNSSeed()
+	var conn *PeerConn
+	var flag bool
+	for _, addr := range addrArray {
+		if addr == nil || addr.IP == nil {
+			continue
 		}
-	}*/
+		conn, flag = validateAddr(addr)
+		if flag {
+			break
+		}
+	}
+	headers := GetHeaderMessage(conn)
+	for headerMsg := range headers {
+		fmt.Println(headerMsg)
+	}
+}
 
+func TestChannel(t *testing.T) {
+	c1 := make(chan string)
+	c2 := make(chan string)
+	//don't forget the last "()"
+	go func() {
+		for count := 0; count < 20; count++ {
+			time.Sleep(1 * time.Second)
+			c1 <- strconv.Itoa(count) + "one"
+		}
+	}()
+
+	go func() {
+		for count := 0; count < 10; count++ {
+			time.Sleep(2 * time.Second)
+			c2 <- strconv.Itoa(count) + "two"
+		}
+	}()
+	for true {
+		select {
+		case msg := <-c1:
+			fmt.Println(msg)
+		case msg := <-c2:
+			fmt.Println(msg)
+		}
+	}
 }

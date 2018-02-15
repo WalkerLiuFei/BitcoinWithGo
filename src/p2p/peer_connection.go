@@ -12,41 +12,37 @@ import (
 
 type PeerConn struct {
 	//Peer 的地址
-	IP *net.TCPAddr
-
-	//
+	Addr *net.TCPAddr
+	//有效的连接
+	Conn *net.TCPConn
 }
 
-//链接成功返回true
-func ConnectPeer(addr *net.TCPAddr) (*net.TCPConn, bool) {
-	conn, err := net.DialTCP("tcp", nil, addr)
+func GetHeaderMessage(conn *net.TCPConn) []message.HeaderMessage {
 	if conn == nil {
-		return conn, false
+		return nil
 	}
-	//FIXME : 连接是不是必须要关掉？
-	checkerr(err, ConnectPeer)
-	verMsg := message.InitVersionMessage(viper.GetInt(configs.CURRENT_HEIGHT), addr)
-	_, err = conn.Write(verMsg.Encode())
-	checkerr(err, ConnectPeer)
-	utils.GetSugarLogger().Infof("connect to %s", addr.IP.String())
-	var versionAckMsg []byte
-	//等待100ms
-	time.Sleep(time.Millisecond * 100)
-	versionAckMsg, err = ioutil.ReadAll(conn)
-	checkerr(err, ConnectPeer)
-	msg, err := message.DecodeMessage(versionAckMsg)
-	checkerr(err, ConnectPeer)
-	if msg == nil {
-		return conn, false
+	//FIXME : 连接是否要在这里关闭？
+	getHeaderMsg := &message.GetHeaderMessage{}
+	getHeaderMsg.Init(nil, utils.GenerateHexBytes(viper.GetString(configs.CURRENT_TOP_BLOCK_HASH)))
+	conn.Write(getHeaderMsg.Encode())
+	var result []message.HeaderMessage
+	for count := 0; count < 500; count++ {
+		//等待100ms
+		time.Sleep(time.Millisecond * 100)
+		response, err := ioutil.ReadAll(conn)
+		checkerr(err, GetHeaderMessage)
+		if len(response) != 0 {
+			headerMsg := message.HeaderMessage{}
+			headerMsg.Decode(response)
+			utils.GetSugarLogger().Infof("Get header message : %s", utils.GetBytesHexString(headerMsg.GetPayload()))
+			result = append(result, headerMsg)
+		}
 	}
-	//FIXME : 在做成连接池后,优化打印的信息
-	return conn, true
+	return result
 }
-
 func checkerr(e error, funcName interface{}) {
 	logger := utils.GetSugarLogger()
 	if e != nil {
 		logger.Errorf("call func name is %s,msg is %s", utils.GetFunctionName(funcName), e.Error())
 	}
-
 }

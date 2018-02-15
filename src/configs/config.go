@@ -4,6 +4,7 @@ import (
 	"constants"
 	"github.com/spf13/viper"
 	"math/rand"
+	"runtime"
 )
 
 const (
@@ -23,6 +24,11 @@ const (
 
 	//当前区块链高度
 	CURRENT_HEIGHT = "current-height"
+
+	//
+	CURRENT_TOP_BLOCK_HASH = "current-top-block-hash"
+	//数据库相对地址
+	DB_PATH = "/"
 )
 
 func InitConfigs() {
@@ -40,4 +46,14 @@ func InitConfigs() {
 	viper.Set(NODE_ID, rand.Uint64())
 	//TODO:当前节点的区块链高度,需要持久化的配合
 	viper.Set(CURRENT_HEIGHT, 0)
+	//TODO : 需要持久化的配合记录
+	viper.Set(CURRENT_TOP_BLOCK_HASH, constants.GENESIS_BLOCK_HASH)
+	//FIXME :这个数据库文件保存的地址应该是由用户来定义的，目前先写死
+	if runtime.GOOS == "windows" {
+		viper.Set(DB_PATH, "c/")
+	}
+	//TODO ：Linux path to store
+	/*else runtime.GOOS == "linus"{
+		viper.Set(DB_PATH,"c/")
+	}*/
 }
