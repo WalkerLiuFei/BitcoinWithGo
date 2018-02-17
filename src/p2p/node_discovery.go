@@ -9,7 +9,6 @@ import (
 	"persistence"
 	"sync"
 	"utils"
-	"fmt"
 )
 
 var DNS_SEEDS = []string{"bitseed.xf2.org", "dnsseed.bluematt.me", "seed.bitcoin.sipa.be", "dnsseed.bitcoin.dashjr.org", "seed.bitcoinstats.com"}
