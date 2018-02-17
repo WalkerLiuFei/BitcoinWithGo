@@ -18,7 +18,7 @@ func (addrMessage *Address_Message) Decode(contentBytes []byte) {
 	addrCount, _ := input.ReadVarInt()
 	addrMessage.addressList = make([]datastruct.NetworkAddress, addrCount)
 	for _, networkaddr := range addrMessage.addressList {
-		networkaddr.Init(input)
+		networkaddr.InitNetWorkAddress(input)
 	}
 }
 

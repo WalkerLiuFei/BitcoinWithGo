@@ -5,6 +5,7 @@ import (
 	"constants"
 	"net"
 	"time"
+	"utils"
 )
 
 //当某个地方需要网络地址时，就使用这个结构。网络地址在版本信息中没有以时间戳作为前缀
@@ -37,7 +38,7 @@ type NetworkAddress struct {
  20 8D                                           - Port 8333
 */
 
-func (networkAddr *NetworkAddress) Init(input common.BitcoinInput) {
+func (networkAddr *NetworkAddress) InitNetWorkAddress(input common.BitcoinInput) {
 	if constants.PROTOCOL_VERSION < 31402 {
 		err := input.ReadNum(&networkAddr.Time)
 		if err != nil {
@@ -48,6 +49,19 @@ func (networkAddr *NetworkAddress) Init(input common.BitcoinInput) {
 	networkAddr.IP = make([]byte, 16)
 	input.ReadBytes(networkAddr.IP)
 	input.ReadNum(&networkAddr.Port)
+}
+
+func InitNetWorkAddress(input common.BitcoinInput) *NetworkAddress {
+	networkAddr := &NetworkAddress{}
+	if constants.PROTOCOL_VERSION < 31402 {
+		err := input.ReadNum(&networkAddr.Time)
+		checkerr(err, InitNetWorkAddress)
+	}
+	input.ReadNum(&networkAddr.Services)
+	networkAddr.IP = make([]byte, 16)
+	input.ReadBytes(networkAddr.IP)
+	input.ReadNum(&networkAddr.Port)
+	return networkAddr
 }
 func InitByTCPAddr(addr *net.TCPAddr, serviceType constants.ServiceType) *NetworkAddress {
 	netWorkAddress := &NetworkAddress{
@@ -71,4 +85,10 @@ func (networkAddr *NetworkAddress) Encode() []byte {
 		WriteBytes(networkAddr.IP).
 		WriteNum(networkAddr.Port)
 	return output.Buffer.Bytes()
+}
+func checkerr(e error, funcName interface{}) {
+	logger := utils.GetSugarLogger()
+	if e != nil {
+		logger.Errorf("call func name is %s,msg is %s", utils.GetFunctionName(funcName), e.Error())
+	}
 }

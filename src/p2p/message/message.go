@@ -49,6 +49,8 @@ func DecodeMessage(inputStream []byte) (Message, error) {
 	case constants.ADDRESS_MESSAGE:
 		message = &Address_Message{}
 	case constants.MEM_POOL_MESSAGE:
+	case constants.VERSION:
+		message = &version_Message{}
 	}
 	//前24个字节为header ， header后面的为payload
 	message.Decode(inputStream)

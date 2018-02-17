@@ -61,7 +61,7 @@ func decodeHeader(inputStream []byte) (*messageHeader) {
 	input.ReadBytes(header.command)
 	input.ReadNum(&header.payloadSize)
 	header.checkSum = make([]byte, 4)
-	input.ReadNum(header.checkSum)
+	input.ReadNum(&header.checkSum)
 	return header
 }
 

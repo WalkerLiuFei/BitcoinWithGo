@@ -12,7 +12,7 @@ const (
 	//运行环境： test，localtest,realse
 	CONTEXT = "context"
 	//端口号
-	PORT = "context"
+	PORT = "port"
 	//magic
 	MAGIC = "magic"
 	//节点类型
@@ -35,7 +35,7 @@ func InitConfigs() {
 	//
 	viper.Set(CONTEXT, constants.MAIN_NET.Network)
 	//运行环境
-	viper.Set(PORT, constants.MAIN_NET.DefaultPort)
+	viper.Set(PORT, uint16(constants.MAIN_NET.DefaultPort))
 	//消息流的开头的四个字节
 	viper.Set(MAGIC, constants.MAIN_NET.Magic)
 	//最大的nbits
@@ -50,10 +50,7 @@ func InitConfigs() {
 	viper.Set(CURRENT_TOP_BLOCK_HASH, constants.GENESIS_BLOCK_HASH)
 	//FIXME :这个数据库文件保存的地址应该是由用户来定义的，目前先写死
 	if runtime.GOOS == "windows" {
-		viper.Set(DB_PATH, "c/")
+		viper.Set(DB_PATH, "g:/temp")
 	}
 	//TODO ：Linux path to store
-	/*else runtime.GOOS == "linus"{
-		viper.Set(DB_PATH,"c/")
-	}*/
 }
