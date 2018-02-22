@@ -25,7 +25,10 @@ func TestUpdateUsefulNode(t *testing.T) {
 	configs.InitConfigs()
 	UpdateUsefulNode()
 	for true {
-		time.Sleep(time.Second)
+		time.Sleep(time.Second * 5)
+		if UsefulNodesHolder != nil {
+			fmt.Println(len(UsefulNodesHolder.nodes))
+		}
 	}
 }
 func TestValidateAddr(t *testing.T) {
@@ -34,7 +37,7 @@ func TestValidateAddr(t *testing.T) {
 		IP:   net.ParseIP("101.201.142.252"),
 		Port: 8333,
 	}
-	ValidateAddr(addr, func(b bool) {
+	ValidateAddr(addr, func(tcpAddr *net.TCPAddr, b bool) {
 		fmt.Println(b)
 	})
 }

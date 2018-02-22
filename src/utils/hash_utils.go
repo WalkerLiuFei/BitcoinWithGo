@@ -1,8 +1,21 @@
 package utils
 
 import (
+	"net"
 	"crypto/sha256"
 )
+
+func GetAddrHash(addr *net.TCPAddr) int64 {
+	result := int64(1)
+	for _, value := range addr.IP {
+		if value == 0 {
+			continue
+		}
+		result = 37*result + int64(value)
+	}
+	return result
+}
+
 
 func SHA256(src []byte) []byte {
 	h := sha256.New()

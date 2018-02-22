@@ -6,91 +6,140 @@ import (
 	"io/ioutil"
 	"net"
 	"p2p/message"
-	"persistence"
 	"sync"
 	"utils"
+	"math/rand"
+	"time"
 )
 
 var DNS_SEEDS = []string{"bitseed.xf2.org", "dnsseed.bluematt.me", "seed.bitcoin.sipa.be", "dnsseed.bitcoin.dashjr.org", "seed.bitcoinstats.com"}
 
-type validateCallback func(bool)
+type validateCallback func(*net.TCPAddr, bool)
 
-type validateAddrArrayCallback func(*SafeNodeValidateCounter)
-
-//安全的并发计数器，计数已经验证过的节点的数量
-type SafeNodeValidateCounter struct {
-	//lock锁
-	lock sync.Mutex
-	//已经验证过的节点的数量
-	validateCount int
-	//有效的地址
-	validateAddrs []*net.TCPAddr
+//写的时候加锁，读的时候共享锁
+type UsefulNodes struct {
+	mutex sync.RWMutex
+	nodes []*net.TCPAddr
 }
 
-func (validateCounter *SafeNodeValidateCounter) appendAddr(addr *net.TCPAddr) {
-	validateCounter.lock.Lock()
-	if validateCounter.validateAddrs == nil {
-		validateCounter.validateAddrs = make([]*net.TCPAddr, 0)
+var UsefulNodesHolder *UsefulNodes
+//移除失效的,重复的节点
+func (usefulNodes *UsefulNodes) FoundAndRemove(addr *net.TCPAddr) {
+	if usefulNodes == nil {
+		return
 	}
-	validateCounter.validateAddrs = append(validateCounter.validateAddrs, addr)
-	validateCounter.lock.Unlock()
-}
-
-func (validateCounter *SafeNodeValidateCounter) increase() {
-	validateCounter.lock.Lock()
-	validateCounter.validateCount++
-	validateCounter.lock.Unlock()
-}
-
-// compare with the dst num  == with return  0 , smaller with return  -1 ,greater will return 1
-func (validateCounter *SafeNodeValidateCounter) compare(dst int) int {
-	validateCounter.lock.Lock()
-	if validateCounter.validateCount > dst {
-		return 1
-	} else if validateCounter.validateCount < dst {
-		return -1
-	} else {
-		return 0
+	usefulNodes.mutex.Lock()
+	for index, nodeAddr := range usefulNodes.nodes {
+		if nodeAddr.IP.Equal(addr.IP) {
+			if index > 0 && index < len(usefulNodes.nodes)-1 {
+				usefulNodes.nodes = append(usefulNodes.nodes[:index-1], usefulNodes.nodes[index+1:]...)
+			} else if index > 0 {
+				usefulNodes.nodes = usefulNodes.nodes[:index-1]
+			} else {
+				usefulNodes.nodes = usefulNodes.nodes[index+1:]
+			}
+		}
 	}
-	validateCounter.lock.Unlock()
-	return 0
+	usefulNodes.mutex.Unlock()
+}
+
+func (usefulNodes *UsefulNodes) Contain(addr *net.TCPAddr) bool {
+	if usefulNodes == nil {
+		return false
+	}
+	for _, nodeAddr := range usefulNodes.nodes {
+		if nodeAddr.IP.Equal(addr.IP) {
+			return true
+		}
+	}
+	return false
+}
+
+func (usefulNodes *UsefulNodes) Append(addr *net.TCPAddr) {
+	if usefulNodes == nil {
+		return
+	}
+	usefulNodes.mutex.Lock()
+	usefulNodes.nodes = append(usefulNodes.nodes, addr)
+	usefulNodes.mutex.Unlock()
+}
+
+//随机从缓存中返回一个节点
+func (usefulNodes *UsefulNodes) GetRandomNodeSync() *net.TCPAddr {
+	if usefulNodes == nil {
+		return nil
+	}
+	index := rand.Intn(len(usefulNodes.nodes))
+	return usefulNodes.nodes[index]
+}
+
+//线程阻塞的，获取一个有效的地址,如果没有，则阻塞线程等待
+func GetRandomNodeAsync() *net.TCPAddr {
+	for true {
+		addr := UsefulNodesHolder.GetRandomNodeSync()
+		if addr != nil {
+			return addr
+		}
+		time.Sleep(500 * time.Millisecond)
+	}
+	return nil
 }
 
 //更新本地有效的Node地址
 func UpdateUsefulNode() {
+	//如果缓存里面有有效的节点，直接更新验证
+	if UsefulNodesHolder != nil && len(UsefulNodesHolder.nodes) > 0 {
+		validateAddrArray(UsefulNodesHolder.nodes)
+		return
+	}
 	//在直接通过DNS Seed之前应该先查询持久化的Node节点来通信
 	tcpAddrChan := make(chan []*net.TCPAddr)
 	go ConsumeDNSSeed(tcpAddrChan)
+	waitValidateAddrArray := getValidateAddrArray(tcpAddrChan)
+	validateAddrArray(waitValidateAddrArray)
+}
+
+func getValidateAddrArray(tcpAddrChan chan []*net.TCPAddr) []*net.TCPAddr {
 	consumed := 0
-	waitValidateAddrArray := make([]*net.TCPAddr, 0)
+	waitValidateAddrMap := make(map[int64]*net.TCPAddr, 0)
 	for addrArray := range tcpAddrChan {
 		consumed++
-		waitValidateAddrArray = append(waitValidateAddrArray, addrArray...)
+		for _, addr := range addrArray {
+			if addr == nil || addr.IP == nil {
+				continue
+			}
+			//FIXME : 现在只考虑了IPV4地址
+			if addr.IP.DefaultMask() != nil {
+				waitValidateAddrMap[utils.GetAddrHash(addr)] = addr
+			}
+		}
 		if consumed == len(DNS_SEEDS) {
 			break
 		}
 	}
-	validateAddrArray(waitValidateAddrArray, func(counter *SafeNodeValidateCounter) {
-		persistence.StoreUsefulNodes(counter.validateAddrs)
-	})
+	waitValidateAddrArray := make([]*net.TCPAddr, 0)
+	for _, value := range waitValidateAddrMap {
+		waitValidateAddrArray = append(waitValidateAddrArray, value)
+	}
+	return waitValidateAddrArray
 }
-func validateAddrArray(addrArray []*net.TCPAddr, callback validateAddrArrayCallback) {
-	safeCounter := &SafeNodeValidateCounter{}
+func validateAddrArray(addrArray []*net.TCPAddr) {
+
 	for _, addr := range addrArray {
 		if addr == nil || addr.IP == nil {
-			//空的地址信息，直接作为已经验证了的
-			safeCounter.increase()
 			continue
 		}
-		go ValidateAddr(addr, func(flag bool) {
-			safeCounter.increase()
+		go ValidateAddr(addr, func(validateAddr *net.TCPAddr, flag bool) {
 			if flag {
-				utils.GetSugarLogger().Infof("Get useful node %s", addr.IP.String())
-				safeCounter.appendAddr(addr)
-			}
-			//FIXME ： 这里只做了一个大约的值限制，应该还有更加精确！
-			if safeCounter.compare(len(addrArray)*3/4) >= 0 {
-				callback(safeCounter)
+				utils.GetSugarLogger().Infof("Get useful node %s", validateAddr.IP.String())
+				if UsefulNodesHolder == nil {
+					UsefulNodesHolder = &UsefulNodes{}
+				}
+				if !UsefulNodesHolder.Contain(validateAddr) {
+					UsefulNodesHolder.Append(validateAddr)
+				}
+			} else {
+				UsefulNodesHolder.FoundAndRemove(validateAddr)
 			}
 		})
 	}
@@ -109,7 +158,6 @@ func ConsumeDNSSeed(tcpAddrChan chan []*net.TCPAddr) {
 		}
 		tcpAddrChan <- result
 	}
-
 }
 
 //链接成功返回true
@@ -117,7 +165,7 @@ func ValidateAddr(addr *net.TCPAddr, callback validateCallback) {
 	conn, err := net.DialTCP("tcp", nil, addr)
 	checkerr(err, ValidateAddr)
 	if conn == nil {
-		callback(false)
+		callback(addr, false)
 		return
 	}
 	defer conn.Close()
@@ -135,9 +183,10 @@ func ValidateAddr(addr *net.TCPAddr, callback validateCallback) {
 	msg, err := message.DecodeMessage(versionAckMsg)
 	checkerr(err, ValidateAddr)
 	if msg == nil {
-		callback(false)
+		callback(addr, false)
 		return
 	}
 	utils.GetSugarLogger().Infof("connect to %s", addr.IP.String())
-	callback(true)
+	callback(addr, true)
 }
+
