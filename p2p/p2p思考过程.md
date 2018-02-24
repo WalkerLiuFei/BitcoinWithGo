@@ -23,6 +23,9 @@
 
  3. 对于每个节点来讲，在选择节点进行通信时应该选择最近活跃的那个节点(最近连接过的那个节点)
  4. 在单独的一个文件中存储这些节点(序列化为JSON),就像btcd那样。
+
+ 总的来说， DNS Seed应该只在启动的时候Consume一次，然后拿到可用的**部分节点**，然后和这些节点进行通信将这些节点本地保存
+ 的可用节点通过 `getAddr`获取下来。然后通过上面2的方式维护这些节点。
 ## Sync Block实现
 > 根据[官方教程](https://bitcoin.org/en/developer-guide#initial-block-download)里面的说反，SyncBlock一般是在第一次接入
 Bitcoin网络或者是从Bitcoin网络中东Offline很久后才会调用(**一般本地最高Block落后24小时**)，同步方式有两种，一种是[blocks-first](https://bitcoin.org/en/developer-guide#blocks-first)
