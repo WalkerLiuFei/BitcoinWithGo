@@ -1,17 +1,28 @@
-1. 连接应该是一个自定义的Strut类似
-      +  net.conn 连接维护
-      +  msg channel ，维护收/发的message
 
-    ```Go
-    type PeerConn struct{
-        ~~IP  *net.TcpAddr~~
-        conn *net.TcpConn //对应的连接
-        msgChannel  chan message //接收到的message 都维护到这个channel里面
-    }
-    ```
-    当新建tcp连接时，首先保证dial能够成功，然后为message channel分配空间并维护
+## 节点的维护
+1. P2P 连接一旦建立以后，双方可以通过`getaddr` 和 `addr`来交换本地有效的链接
+2. 对于维护的链接当节点的连接状态遇到下面的情况之一时，连接认为节点已经是无效的了
+    + It claims to be from the future
+    + It hasn't been seen in over a month
+    + It has failed at least three times and never succeeded
+    + It has failed ten times in the last week
 
-~~2. 连接池应该是一个map,且应该持有一个锁，~~
+     所以结构体应该是这样的：
+      ```
+        type Node struct {
+            Addr        string
+            Src         string
+            Attempts    int
+            TimeStamp   int64
+            LastAttempt int64
+            LastSuccess int64
+            // no refcount or tried, that is available from context.
+        }
+      ```
+
+
+ 3. 对于每个节点来讲，在选择节点进行通信时应该选择最近活跃的那个节点(最近连接过的那个节点)
+ 4. 在单独的一个文件中存储这些节点(序列化为JSON),就像btcd那样。
 ## Sync Block实现
 > 根据[官方教程](https://bitcoin.org/en/developer-guide#initial-block-download)里面的说反，SyncBlock一般是在第一次接入
 Bitcoin网络或者是从Bitcoin网络中东Offline很久后才会调用(**一般本地最高Block落后24小时**)，同步方式有两种，一种是[blocks-first](https://bitcoin.org/en/developer-guide#blocks-first)
