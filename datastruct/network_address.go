@@ -10,9 +10,6 @@ import (
 
 //当某个地方需要网络地址时，就使用这个结构。网络地址在版本信息中没有以时间戳作为前缀
 type NetworkAddress struct {
-	// the Time (version >= 31402). Not present in version message.
-	// reference : https://bitcoin.org/en/developer-reference#protocol-versions
-	Time uint32
 
 	//	same service(s) listed in version
 	Services uint64
@@ -39,12 +36,6 @@ type NetworkAddress struct {
 */
 
 func (networkAddr *NetworkAddress) InitNetWorkAddress(input common.BitcoinInput) {
-	if constants.PROTOCOL_VERSION < 31402 {
-		err := input.ReadNum(&networkAddr.Time)
-		if err != nil {
-			return
-		}
-	}
 	input.ReadNum(&networkAddr.Services)
 	networkAddr.IP = make([]byte, 16)
 	input.ReadBytes(networkAddr.IP)
@@ -53,10 +44,6 @@ func (networkAddr *NetworkAddress) InitNetWorkAddress(input common.BitcoinInput)
 
 func InitNetWorkAddress(input common.BitcoinInput) *NetworkAddress {
 	networkAddr := &NetworkAddress{}
-	if constants.PROTOCOL_VERSION < 31402 {
-		err := input.ReadNum(&networkAddr.Time)
-		checkerr(err, InitNetWorkAddress)
-	}
 	input.ReadNum(&networkAddr.Services)
 	networkAddr.IP = make([]byte, 16)
 	input.ReadBytes(networkAddr.IP)
@@ -69,18 +56,10 @@ func InitByTCPAddr(addr *net.TCPAddr, serviceType constants.ServiceType) *Networ
 		IP:       addr.IP,
 		Port:     uint16(addr.Port),
 	}
-	//FIXME : 这个时间戳信息到底要不要？
-	//if constants.PROTOCOL_VERSION < 31402 {
-	if true {
-		netWorkAddress.Time = uint32(time.Now().Unix())
-	}
 	return netWorkAddress
 }
 func (networkAddr *NetworkAddress) Encode() []byte {
 	output := common.BitcoinOuput{}
-	if constants.PROTOCOL_VERSION < 31402 {
-		output.WriteNum(networkAddr.Time)
-	}
 	output.WriteNum(networkAddr.Services).
 		WriteBytes(networkAddr.IP).
 		WriteNum(networkAddr.Port)
