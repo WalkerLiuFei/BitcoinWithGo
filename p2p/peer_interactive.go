@@ -1,23 +1,17 @@
 package p2p
 
 import (
-	"github.com/spf13/viper"
-	"configs"
-	"time"
-	"io/ioutil"
-	"net"
-	"p2p/message"
-	"utils"
 )
 
 //同步本地的区块链
 func SyncBlockChain() {
 	//FIXME:是不是要移到main方法里面执行？
 	go UpdateUsefulNode()
-	addr := GetRandomNodeAsync()
+	//addr := GetRandomNodeAsync()
 
 }
 
+/*
 func GetHeaderMessage(conn *net.TCPAddr) []message.HeaderMessage {
 	if conn == nil {
 		return nil
@@ -25,12 +19,12 @@ func GetHeaderMessage(conn *net.TCPAddr) []message.HeaderMessage {
 	//FIXME : 连接是否要在这里关闭？
 	getHeaderMsg := &message.GetHeaderMessage{}
 	getHeaderMsg.Init(nil, utils.GenerateHexBytes(viper.GetString(configs.CURRENT_TOP_BLOCK_HASH)))
-	conn.Write(getHeaderMsg.Encode())
+	//conn.Write(getHeaderMsg.Encode())
 	var result []message.HeaderMessage
 	for count := 0; count < 500; count++ {
 		//等待100ms
 		time.Sleep(time.Millisecond * 100)
-		response, err := ioutil.ReadAll(conn)
+		//response, err := ioutil.ReadAll(conn)
 		checkerr(err, GetHeaderMessage)
 		if len(response) != 0 {
 			headerMsg := message.HeaderMessage{}
@@ -41,3 +35,4 @@ func GetHeaderMessage(conn *net.TCPAddr) []message.HeaderMessage {
 	}
 	return result
 }
+*/

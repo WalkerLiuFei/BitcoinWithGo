@@ -1,12 +1,7 @@
 package p2p
 
 import (
-	"configs"
-	"github.com/spf13/viper"
-	"io/ioutil"
 	"net"
-	"p2p/message"
-	"time"
 	"utils"
 )
 
