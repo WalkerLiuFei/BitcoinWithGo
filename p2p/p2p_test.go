@@ -7,6 +7,7 @@ import (
 	"testing"
 	"time"
 	"configs"
+	"p2p/network"
 )
 
 func TestConsumeDNSSeed(t *testing.T) {
@@ -23,11 +24,11 @@ func TestUnixSecond(t *testing.T) {
 
 func TestUpdateUsefulNode(t *testing.T) {
 	configs.InitConfigs()
-	UpdateUsefulNode()
+	network.UpdateUsefulNode()
 	for true {
 		time.Sleep(time.Second * 5)
-		if UsefulNodesHolder != nil {
-			fmt.Println(len(UsefulNodesHolder.nodes))
+		if network.UsefulNodesHolder != nil {
+			//fmt.Println(len(network.UsefulNodesHolder.nodes))
 		}
 	}
 }
@@ -37,7 +38,7 @@ func TestValidateAddr(t *testing.T) {
 		IP:   net.ParseIP("101.201.142.252"),
 		Port: 8333,
 	}
-	ValidateAddr(addr, func(tcpAddr *net.TCPAddr, b bool) {
+	network.ValidateAddr(addr, func(tcpAddr *net.TCPAddr, b bool) {
 		fmt.Println(b)
 	})
 }
